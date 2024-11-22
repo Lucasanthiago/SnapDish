@@ -1,47 +1,50 @@
-//
-//  HomeView.swift
-//  SnapDish
-//
-//  Created by Lucas Santos on 22/11/24.
-//
-
 import SwiftUI
 
 struct HomeView: View {
-    @State private var items: [Item] = []
+    @State private var savedRecipes: [Recipe] = []
     @State private var showingCamera = false
 
     var body: some View {
         NavigationView {
-            List(items) { item in
-                HStack {
-                    Image(uiImage: item.image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                    Text(item.name)
-                }
-            }
-            .navigationTitle("Alimentos")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingCamera = true
-                    }) {
-                        Image(systemName: "camera")
+            VStack {
+                if savedRecipes.isEmpty {
+                    Text("Nenhuma receita salva ainda.")
+                        .foregroundColor(.gray)
+                        .padding()
+                } else {
+                    List(savedRecipes) { recipe in
+                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                            HStack {
+                                AsyncImage(url: URL(string: recipe.thumbnail)) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    ProgressView()
+                                }
+
+                                Text(recipe.name)
+                            }
+                        }
                     }
                 }
+
+                Button(action: {
+                    showingCamera = true
+                }) {
+                    Text("Adicionar Receita")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
+                .sheet(isPresented: $showingCamera) {
+                    CameraView(savedRecipes: $savedRecipes)
+                }
             }
-            .sheet(isPresented: $showingCamera) {
-                CameraView(items: $items)
-            }
+            .navigationTitle("Receitas Salvas")
         }
     }
-}
-
-
-
-#Preview {
-    HomeView()
 }
