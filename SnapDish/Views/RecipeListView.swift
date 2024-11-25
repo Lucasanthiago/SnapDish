@@ -7,39 +7,43 @@ struct RecipeListView: View {
     @State private var recipes: [Recipe] = []
     @State private var loading = true
     @State private var error: String?
+    @Environment(\.dismiss) private var dismiss // Adicionado
 
     var body: some View {
-        Group {
-            if loading {
-                ProgressView("Carregando...")
-            } else if let error = error {
-                Text("Erro: \(error)")
-            } else {
-                List(recipes) { recipe in
-                    Button(action: {
-                        onRecipeSelected(recipe)
-                    }) {
-                        HStack {
-                            AsyncImage(url: URL(string: recipe.thumbnail)) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                ProgressView()
-                            }
+        NavigationView {
+            Group {
+                if loading {
+                    ProgressView("Carregando...")
+                } else if let error = error {
+                    Text("Erro: \(error)")
+                } else {
+                    List(recipes) { recipe in
+                        Button(action: {
+                            onRecipeSelected(recipe)
+                            dismiss() // Fecha a sheet ao selecionar
+                        }) {
+                            HStack {
+                                AsyncImage(url: URL(string: recipe.thumbnail)) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    ProgressView()
+                                }
 
-                            Text(recipe.name)
+                                Text(recipe.name)
+                            }
                         }
                     }
                 }
             }
+            .onAppear {
+                fetchRecipes()
+            }
+            .navigationTitle("Receitas com \(ingredient)")
         }
-        .onAppear {
-            fetchRecipes()
-        }
-        .navigationTitle("Receitas com \(ingredient)")
     }
 
     private func fetchRecipes() {

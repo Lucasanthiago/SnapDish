@@ -12,22 +12,25 @@ struct HomeView: View {
                         .foregroundColor(.gray)
                         .padding()
                 } else {
-                    List(savedRecipes) { recipe in
-                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
-                            HStack {
-                                AsyncImage(url: URL(string: recipe.thumbnail)) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(Circle())
-                                } placeholder: {
-                                    ProgressView()
-                                }
+                    List {
+                        ForEach(savedRecipes) { recipe in
+                            NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                                HStack {
+                                    AsyncImage(url: URL(string: recipe.thumbnail)) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
 
-                                Text(recipe.name)
+                                    Text(recipe.name)
+                                }
                             }
                         }
+                        .onDelete(perform: deleteRecipe)
                     }
                 }
 
@@ -46,5 +49,9 @@ struct HomeView: View {
             }
             .navigationTitle("Receitas Salvas")
         }
+    }
+
+    private func deleteRecipe(at offsets: IndexSet) {
+        savedRecipes.remove(atOffsets: offsets)
     }
 }

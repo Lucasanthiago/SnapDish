@@ -4,7 +4,7 @@ import UIKit
 struct CameraView: UIViewControllerRepresentable {
     @Binding var savedRecipes: [Recipe]
     @Environment(\.dismiss) var dismiss
-    private let mlProcessor = MLProcessor(modelName: "FoodClassificator 1") // Substitua pelo nome do modelo
+    private let mlProcessor = MLProcessor(modelName: "FoodClassificator 1")
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -14,6 +14,7 @@ struct CameraView: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = .camera
+        picker.allowsEditing = false
         return picker
     }
 
@@ -27,18 +28,21 @@ struct CameraView: UIViewControllerRepresentable {
         }
 
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.mlProcessor?.classify(image: image) { identifiedIngredient in
-                    DispatchQueue.main.async {
-                        picker.dismiss(animated: true) {
-                            if let ingredient = identifiedIngredient {
-                                self.parent.showRecipeSelection(for: ingredient)
-                            }
+            guard let image = info[.originalImage] as? UIImage else {
+                picker.dismiss(animated: true)
+                return
+            }
+
+            parent.mlProcessor?.classify(image: image) { identifiedIngredient in
+                DispatchQueue.main.async {
+                    picker.dismiss(animated: true) {
+                        if let ingredient = identifiedIngredient {
+                            self.parent.showRecipeSelection(for: ingredient)
+                        } else {
+                            print("Erro: Nenhum ingrediente identificado.")
                         }
                     }
                 }
-            } else {
-                picker.dismiss(animated: true)
             }
         }
 
@@ -58,7 +62,10 @@ struct CameraView: UIViewControllerRepresentable {
             )
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first {
-                window.rootViewController?.present(UIHostingController(rootView: recipeListView), animated: true)
+                window.rootViewController?.present(
+                    UIHostingController(rootView: recipeListView),
+                    animated: true
+                )
             }
         }
     }
