@@ -7,7 +7,7 @@ struct RecipeListView: View {
     @State private var recipes: [Recipe] = []
     @State private var loading = true
     @State private var error: String?
-    @Environment(\.dismiss) private var dismiss // Adicionado
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationView {
@@ -20,7 +20,7 @@ struct RecipeListView: View {
                     List(recipes) { recipe in
                         Button(action: {
                             onRecipeSelected(recipe)
-                            dismiss() // Fecha a sheet ao selecionar
+                            dismiss()
                         }) {
                             HStack {
                                 AsyncImage(url: URL(string: recipe.thumbnail)) { image in
