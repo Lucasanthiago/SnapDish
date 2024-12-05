@@ -37,8 +37,13 @@ struct RecipeDetailView: View {
                         Text("Ingredientes")
                             .font(.headline)
 
-                        ForEach(recipeDetail.ingredients, id: \.self) { ingredient in
-                            Text("• \(ingredient)")
+                        // Verifique se os ingredientes estão sendo exibidos
+                        if recipeDetail.ingredients.isEmpty {
+                            Text("Nenhum ingrediente disponível.")
+                        } else {
+                            ForEach(recipeDetail.ingredients, id: \.self) { ingredient in
+                                Text("• \(ingredient)")
+                            }
                         }
 
                         Text("Instruções")
@@ -65,8 +70,10 @@ struct RecipeDetailView: View {
                 switch result {
                 case .success(let detail):
                     recipeDetail = detail
+                    print("Ingredientes carregados na view: \(detail.ingredients)") // Log de depuração
                 case .failure(let fetchError):
                     error = fetchError.localizedDescription
+                    print("Erro ao buscar detalhes: \(fetchError.localizedDescription)")
                 }
             }
         }

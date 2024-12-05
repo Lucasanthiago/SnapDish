@@ -24,25 +24,29 @@ struct RecipeDetail: Identifiable, Decodable {
         instructions = try container.decodeIfPresent(String.self, forKey: .instructions) ?? "Sem instruções disponíveis."
 
         // Extração dinâmica de ingredientes e medidas
-        var ingredients: [String] = []
+        var ingredientsArray: [String] = []
         for i in 1...20 {
+            // Criação segura das chaves para ingredientes e medidas
             guard
                 let ingredientKey = CodingKeys(stringValue: "strIngredient\(i)"),
                 let measureKey = CodingKeys(stringValue: "strMeasure\(i)")
-            else {
-                continue
-            }
+            else { continue }
 
-            let ingredient = try container.decodeIfPresent(String.self, forKey: ingredientKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let measure = try container.decodeIfPresent(String.self, forKey: measureKey)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            // Decodificação dos valores
+            let ingredient = (try? container.decodeIfPresent(String.self, forKey: ingredientKey)?.trimmingCharacters(in: .whitespacesAndNewlines)) ?? ""
+            let measure = (try? container.decodeIfPresent(String.self, forKey: measureKey)?.trimmingCharacters(in: .whitespacesAndNewlines)) ?? ""
 
-            // Adicionar ingrediente somente se houver valores válidos
-            if !ingredient.isEmpty || !measure.isEmpty {
+            // Ignorar entradas vazias
+            if !ingredient.isEmpty {
                 let combined = measure.isEmpty ? ingredient : "\(ingredient) - \(measure)"
-                ingredients.append(combined)
+                ingredientsArray.append(combined)
             }
         }
 
-        self.ingredients = ingredients
+        // Atribuir os ingredientes ao modelo
+        self.ingredients = ingredientsArray
+
+        // Log de depuração para confirmar o armazenamento
+        print("Ingredientes armazenados no modelo: \(ingredients)")
     }
 }
