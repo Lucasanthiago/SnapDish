@@ -4,7 +4,7 @@ import UIKit
 struct CameraView: UIViewControllerRepresentable {
     @Binding var savedRecipes: [Recipe]
     @Environment(\.dismiss) var dismiss
-    private let mlProcessor = MLProcessor(modelName: "FoodClassificator 1")
+    private let mlProcessor = MLProcessor(modelName: "FoodClassificator 2")
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
